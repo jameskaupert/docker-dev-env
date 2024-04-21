@@ -51,6 +51,7 @@ RUN apt-get update \
 build-essential \
 ca-certificates \
 curl \
+fd-find \
 fzf \
 git \
 ripgrep \
@@ -59,11 +60,9 @@ sudo \
 tar \
 unzip \
 wget \
-zip 
+zip \
+zsh
 
 RUN cd ~ && git clone https://github.com/jameskaupert/dotfiles.git && cd dotfiles && chmod +x ./install.sh && ./install.sh
-
-# set up dummy init.lua file until dotfiles are set up
-# COPY init.lua  /root/.config/nvim/init.lua
-
-ENTRYPOINT ["/bin/bash", "-c", "nvim"]
+RUN chsh -s $(which zsh) 
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
