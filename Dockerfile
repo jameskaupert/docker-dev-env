@@ -45,7 +45,25 @@ COPY --from=builder /usr/local/bin/nvim /usr/local/bin
 COPY --from=builder /usr/local/lib/nvim /usr/local/lib
 COPY --from=builder /usr/local/share/nvim/ /usr/local/share/nvim
 
+# dotfiles management
+RUN apt-get update \ 
+&& apt-get install --no-install-recommends -y \
+build-essential \
+ca-certificates \
+curl \
+fzf \
+git \
+ripgrep \
+stow \
+sudo \
+tar \
+unzip \
+wget \
+zip 
+
+RUN cd ~ && git clone https://github.com/jameskaupert/dotfiles.git && cd dotfiles && chmod +x ./install.sh && ./install.sh
+
 # set up dummy init.lua file until dotfiles are set up
-COPY init.lua  /root/.config/nvim/init.lua
+# COPY init.lua  /root/.config/nvim/init.lua
 
 ENTRYPOINT ["/bin/bash", "-c", "nvim"]
