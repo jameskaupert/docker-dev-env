@@ -60,6 +60,7 @@ sudo \
 tar \
 unzip \
 wget \
+xclip \
 zip \
 zsh
 
