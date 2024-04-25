@@ -26,7 +26,10 @@ RUN cd /root/TMP/neovim && git checkout stable && make CMAKE_BUILD_TYPE=RelWithD
 RUN rm -rf /root/TMP
 
 # build final image without build deps
-FROM debian:stable-slim
+FROM debian:stable-slim as DEV
+
+ENV GO_VERSION="1.22.2"
+ENV TARGET_ARCH="amd64"
 
 # set locale so :checkhealth is happy
 ENV LC_ALL en_US.UTF-8
@@ -62,8 +65,28 @@ unzip \
 wget \
 xclip \
 zip \
-zsh
+zsh \
+&& rm -rf /var/lib/apt/lists/*
 
 RUN cd ~ && git clone https://github.com/jameskaupert/dotfiles.git && cd dotfiles && chmod +x ./install.sh && ./install.sh
 RUN chsh -s $(which zsh) 
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+
+# install nvm / node / npm
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash \
+&& export NVM_DIR="$HOME/.nvm" \
+&& [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" \
+&& [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" \
+&& nvm install --lts \
+&& node -v \
+&& npm -v
+
+# install go
+RUN curl -sLo go.tar.gz "https://go.dev/dl/go${GO_VERSION}.linux-${TARGET_ARCH}.tar.gz" \
+&& tar -C /usr/local/bin -xzf go.tar.gz \
+&& rm go.tar.gz
+
+ENV PATH=$PATH:/usr/local/bin/go/bin/
+ENV GOPATH=/home/nvim/.local/share/go
+ENV PATH=$PATH:$GOPATH/bin
+RUN go version
