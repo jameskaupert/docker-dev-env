@@ -13,5 +13,5 @@ Run `./connect-container.sh`
 Run `./clean-container.sh`
 
 ## Push to Docker Hub
-docker tag docker-dev-env:latest jrkaupert/docker-dev-env
-docker push jrkaupert/docker-dev-env
+1. docker tag docker-dev-env:latest jrkaupert/docker-dev-env
+2. docker push jrkaupert/docker-dev-env
